@@ -39,7 +39,6 @@ module RedmineMsteams
       title = "#{escape issue.project}"
       text = "#{escape journal.user.to_s} updated [#{escape issue}](#{object_url issue}) #{mentions journal.notes}"
 
-      factTitle = nil
       factsTitle = escape journal.notes if journal.notes
       facts = get_facts(journal)
 
@@ -125,7 +124,7 @@ module RedmineMsteams
     end
 
     def escape(msg)
-      msg.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+      ERB::Util.h msg.to_s
     end
 
     def object_url(obj)
@@ -207,13 +206,13 @@ module RedmineMsteams
       return { title => value }
     end
 
-    def mentions text
+    def mentions(text)
       return nil # Don't work in teams api right now
       names = extract_usernames text
       names.present? ? "\nTo: " + names.join(', ') : nil
     end
 
-    def extract_usernames text = ''
+    def extract_usernames(text = '')
       if text.nil?
         text = ''
       end
