@@ -28,14 +28,13 @@ module RedmineMsteams
     end
 
     def controller_issues_edit_after_save(context={})
+      return unless Setting.plugin_redmine_msteams['post_updates'] == '1'
+
       issue = context[:issue]
       journal = context[:journal]
+      return if issue.is_private? || journal.private_notes?
 
-      url = url_for_project issue.project
-
-      return unless url and Setting.plugin_redmine_msteams[:post_updates] == '1'
-      return if issue.is_private?
-      return if journal.private_notes?
+      return unless url = url_for_project(issue.project)
 
       title = "#{escape issue.project}"
       text = "#{escape journal.user.to_s} updated [#{escape issue}](#{object_url issue}) #{mentions journal.notes}"
@@ -98,7 +97,7 @@ module RedmineMsteams
     end
 
     def controller_wiki_edit_after_save(context = { })
-      return unless Setting.plugin_redmine_msteams[:post_wiki_updates] == '1'
+      return unless Setting.plugin_redmine_msteams['post_wiki_updates'] == '1'
 
       project = context[:project]
       title = "#{escape project}"
@@ -151,14 +150,11 @@ module RedmineMsteams
 
       cf = ProjectCustomField.find_by_name("Teams URL")
 
-      url = [
-        (proj.custom_value_for(cf).value rescue nil),
-        (url_for_project proj.parent),
-        Setting.plugin_redmine_msteams[:msteams_url],
-      ].find{|v| v.present?}
+      url = (proj.custom_value_for(cf).value rescue nil) ||
+            url_for_project(proj.parent) ||
+            Setting.plugin_redmine_msteams['msteams_url'].presence
 
-      return url if url.starts_with?("http")
-      return nil
+      return url if url && url.start_with?("http")
     end
 
     def detail_to_field(detail)
