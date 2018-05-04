@@ -65,15 +65,15 @@ module RedmineMsteams
       }
     end
 
-    def send(url,async=false)
+    def send(url, async = false)
       begin
         client = HTTPClient.new
         client.ssl_config.cert_store.set_default_paths
         client.ssl_config.ssl_version = :auto
         if async
-          client.post_async url, getJson
+          client.post_async url, getJson, {'Content-Type' => 'application/json'}
         else
-          client.post url, getJson
+          client.post url, getJson, {'Content-Type' => 'application/json'}
         end
       rescue Exception => e
         Rails.logger.warn("cannot connect to #{url}")
