@@ -1,6 +1,5 @@
 require 'redmine'
-
-require_dependency 'redmine_msteams/listener'
+require 'redmine_msteams/listener'
 
 Redmine::Plugin.register :redmine_msteams do
   name 'Redmine Microsoft Teams'
