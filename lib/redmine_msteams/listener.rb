@@ -149,7 +149,8 @@ module RedmineMsteams
 
       cf = ProjectCustomField.find_by_name("Teams URL")
 
-      url = (proj.custom_value_for(cf).value rescue nil) ||
+      cv = proj.custom_value_for(cf)
+      url = (cv.value.blank? ? nil : cv.value rescue nil) ||
             url_for_project(proj.parent) ||
             Setting.plugin_redmine_msteams['msteams_url'].presence
 
